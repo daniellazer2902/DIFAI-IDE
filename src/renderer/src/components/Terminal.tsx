@@ -14,7 +14,11 @@ export function Terminal({ tabId }: { tabId: string }): React.JSX.Element {
     const container = containerRef.current
     if (!container) return
 
-    const term = new XTerm({ fontFamily: 'Consolas, monospace', fontSize: 13, cursorBlink: true, scrollback: 5000 })
+    const term = new XTerm({
+      fontFamily: 'Consolas, monospace', fontSize: 13, cursorBlink: true, scrollback: 5000,
+      // Liens OSC 8 émis par la CLI : sans handler, xterm fait confirm() + window.open().
+      linkHandler: { activate: (_e, uri) => window.hub.notesOpenExternal(uri) }
+    })
     const fit = new FitAddon()
     term.loadAddon(fit)
     term.open(container)

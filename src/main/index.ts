@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, dialog, Menu, safeStorage } from 'electron'
+import { app, BrowserWindow, ipcMain, dialog, Menu, safeStorage, shell } from 'electron'
 import { join } from 'node:path'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { PtyManager } from './PtyManager'
@@ -9,6 +9,7 @@ import { SessionRegistry } from './SessionRegistry'
 import { HookServer } from './HookServer'
 import { writeHooksSettings } from './hubHooks'
 import { WindowSender } from './WindowSender'
+import { installExternalLinkGuard } from './externalLinks'
 import { CredentialStore } from './ado/CredentialStore'
 import type { AppContext, HubModule } from './AppContext'
 import { createSessionModule } from './modules/sessionModule'
@@ -75,6 +76,7 @@ function createWindow(): void {
   })
 
   sender.setWindow(win)
+  installExternalLinkGuard(win.webContents, (url) => { void shell.openExternal(url) })
 
   // Révèle la fenêtre dès que possible. `ready-to-show` ne se déclenche pas toujours :
   // on double avec `did-finish-load` + un filet de sécurité par timeout.
